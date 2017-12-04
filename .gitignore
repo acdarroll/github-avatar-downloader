@@ -56,3 +56,6 @@ typings/
 
 # dotenv environment variables file
 .env
+
+# Authentication token
+secrets.js
