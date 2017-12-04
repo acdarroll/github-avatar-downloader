@@ -2,7 +2,24 @@ var request = require('request');
 var secrets = require('./secrets');
 var fs = require("fs");
 
-console.log('Welcome to the Github avatar downloader!');
+var args = process.argv.slice(2);
+
+console.log("You're using the Github avatar downloader!");
+
+function downloadImageByURL(url, filePath) {
+
+  request.get(url + '/' + filePath)
+    .on('error', function(err) {
+      throw err;
+    })
+    .on('response', function(response) {
+      console.log("Downloading image:", filePath);
+    })
+    .pipe(fs.createWriteStream("./avatars/" + filePath))
+    .on('finish', function() {
+        console.log("Download complete.")
+    });
+}
 
 function getRepoContributors(repoOwner, repoName, cb) {
   var options = {
@@ -22,7 +39,7 @@ function getRepoContributors(repoOwner, repoName, cb) {
   });
 }
 
-getRepoContributors("jquery", "jquery", function(err, result) {
+getRepoContributors(args[0], args[1], function(err, result) {
   console.log("Error: ", err);
 
   result.forEach( function(contributor) {
@@ -30,17 +47,3 @@ getRepoContributors("jquery", "jquery", function(err, result) {
   });
 })
 
-function downloadImageByURL(url, filePath) {
-
-  request.get(url + '/' + filePath)
-    .on('error', function(err) {
-      throw err;
-    })
-    .on('response', function(response) {
-      console.log("Downloading image:", filePath);
-    })
-    .pipe(fs.createWriteStream("./avatars/" + filePath))
-    .on('finish', function() {
-        console.log("Download complete.")
-    });
-}
