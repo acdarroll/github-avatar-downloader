@@ -40,11 +40,17 @@ function getRepoContributors(repoOwner, repoName, cb) {
 }
 
 // Callback function will download the avatar for each contributor listed in the repo
-getRepoContributors(args[0], args[1], function(err, result) {
-  console.log("Error: ", err);
+if(args.length !== 2) {
+    return(console.log)
+} else {
+  getRepoContributors(args[0], args[1], function(err, result) {
+    console.log("Error: ", err);
 
-  result.forEach( function(contributor) {
-    downloadImageByURL(contributor['avatar_url'], `./avatars/${contributor['login']}.jpg`);
+
+    result.forEach( function(contributor) {
+      downloadImageByURL(contributor['avatar_url'], `./avatars/${contributor['login']}.jpg`);
+    });
   });
-})
+}
+
 
