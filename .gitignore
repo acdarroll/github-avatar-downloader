@@ -62,3 +62,6 @@ secrets.js
 
 # Avatar images
 avatars/
+
+# Env token
+.env
