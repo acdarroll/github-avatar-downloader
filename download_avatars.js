@@ -33,24 +33,67 @@ function getRepoContributors(repoOwner, repoName, cb) {
 
   request(options, function(err, res, body) {
     var contributors = JSON.parse(body);
+    var status = res.statusCode;
+
     console.log("Response status code:", res.statusCode);
+    if(status === 404) {
+      return console.log("Provided owner and repo do not exist.");
+    } else if (status === 401) {
+      return console.log("Authorization is incorrect.")
+    }
 
     cb(err, contributors);
   });
 }
 
 // Callback function will download the avatar for each contributor listed in the repo
-if(args.length !== 2) {
-    return(console.log)
-} else {
-  getRepoContributors(args[0], args[1], function(err, result) {
-    console.log("Error: ", err);
 
-
-    result.forEach( function(contributor) {
-      downloadImageByURL(contributor['avatar_url'], `./avatars/${contributor['login']}.jpg`);
-    });
-  });
+function rightArguments(argsArray) {
+  if(args.length !== 2) {
+    console.log("Wrong number of arguments.")
+  }
+  return args.length === 2;
 }
 
+function avatarDir() {
+  return fs.existsSync('./avatars/');
+}
 
+function checkStateBeforeRunning() {
+  // Check if the user input the right number of arguments
+  if(!rightArguments(args)) {
+    return console.log("Please try again...");
+  }
+
+  // Check if the avatar directory exists, throw an error if not
+  if (!avatarDir()) {
+    return console.log("Cannot find the avatars/ directory");
+  }
+
+  // Log to the console if there is an
+  try {
+  var envString = fs.readFileSync('./.env', 'utf-8')
+  } catch (e) {
+    return console.log("The .env file is empty");
+  }
+
+  // If there is no field matching the GITHUB_TOKEN then
+  var matches = envString.match(/GITHUB_TOKEN=(.*)\b/);
+  if (!matches) {
+    return console.log("Missing a token in the .env file.")
+  } else {
+
+  // Call the getRepoContributors function
+    getRepoContributors(args[0], args[1], function(err, result) {
+      if (err) {
+        console.log("callback error:", err);
+      }
+
+      result.forEach( function(contributor) {
+        downloadImageByURL(contributor['avatar_url'], `./avatars/${contributor['login']}.jpg`);
+      });
+    });
+  }
+}
+
+checkStateBeforeRunning();
